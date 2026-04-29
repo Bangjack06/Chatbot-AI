@@ -1,0 +1,109 @@
+{
+  "name": "Tugas 1(1) AI Pemasaran - form email",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Pendafataran SIB mandiri BATCH $",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Nama",
+              "fieldName": "NAMA",
+              "requiredField": "={{ true }}"
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldName": "Email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Kelas",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "AI FOR BUSINESS"
+                  },
+                  {
+                    "option": "DATA SCIENCE(CODELESS)"
+                  },
+                  {
+                    "option": "DEVOPS"
+                  },
+                  {
+                    "option": "FULLSTACK "
+                  },
+                  {
+                    "option": "DIGITAL MARKETING"
+                  },
+                  {
+                    "option": "MOBILE DEVELOPER"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "feb3fdf3-3d3c-41ca-98e9-607bb80cd83e",
+      "name": "On form submission",
+      "webhookId": "ef5d3f65-e922-4614-8dd2-9f75c8b7e6af"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "Informasi pendaftaran SIB mandiri batch 4",
+        "message": "=<p>Halo <strong>{{ $json.Nama }}</strong>,</p>\n\n<p>Terima kasih telah melakukan pendaftaran pada program <strong>SIB Mandiri Batch 4 NF Academy</strong>. \nKami mengonfirmasi bahwa data Anda telah berhasil kami terima dan tercatat dalam sistem kami.</p>\n\n<p>Berikut adalah rincian data pendaftaran Anda:</p>\n\n<div class=\"data-box\">\n  <div class=\"data-row\">\n    <div class=\"label\">Nama Lengkap</div>\n    <div class=\"value\">{{ $json.Nama }}</div>\n  </div>\n  <div class=\"data-row\">\n    <div class=\"label\">Email Terdaftar</div>\n    <div class=\"value\">{{ $json.Email }}</div>\n  </div>\n  <div class=\"data-row\">\n    <div class=\"label\">Kelas Pilihan</div>\n    <div class=\"value\">{{ $json.Kelas }}</div>\n  </div>\n</div>\n\n<p>Mohon untuk meninjau kembali data di atas. Apabila terdapat kesalahan atau perubahan informasi, Anda dapat membalas email ini untuk melakukan konfirmasi.</p>\n\n<p>Tim kami akan segera melakukan proses verifikasi dan menghubungi Anda terkait tahapan selanjutnya.</p>\n\n<br>\n\n<p>Hormat kami,<br>\n<strong>Tim Penerimaan NF Academy</strong></p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "72e72b66-fd1b-4569-becd-0529e895e908",
+      "name": "Send a message",
+      "webhookId": "5744b62b-03a6-4990-acd1-ba1272eb8774",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ngSDcQezsafVXqQJ",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "e6da5bb5-d580-4096-9558-7d3f656793d7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bb983733e1cff6aaf4a40589532dc5ce92703ea6f4b8d691fba2decba1a6fef6"
+  },
+  "id": "T8FJlP9dwXYMI1hs",
+  "tags": []
+}
