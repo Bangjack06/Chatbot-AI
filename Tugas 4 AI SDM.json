@@ -1,0 +1,287 @@
+{
+  "name": "Tugas 4 AI SDM",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -720,
+        32
+      ],
+      "id": "6249180c-098c-4e55-8cc4-a88579be1798",
+      "name": "Telegram Trigger",
+      "webhookId": "590d3291-bd3d-42e1-a124-9fa8df041440",
+      "credentials": {
+        "telegramApi": {
+          "id": "zfJ0sYfHci4DVY6D",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4b395f31-47bf-4cd2-aad9-4f134e97f58e",
+              "leftValue": "= {{ $json.message.text }}",
+              "rightValue": "Bagaimana prosedur reimbursment?",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "30a90a5a-2e40-473a-9d9d-a0904fe4088e",
+              "leftValue": "= {{ $json.message.text }}",
+              "rightValue": "Prosedur pengajuan cuti tahunan",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "e0676fdd-236b-4308-9d02-633181b26a99",
+              "leftValue": "= {{ $json.message.text }}",
+              "rightValue": "Bagaimana aturan lembur di perusahaan?",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "fb3ac6b7-269e-47e3-891c-b40c73788d0b",
+              "leftValue": "= {{ $json.message.text }}",
+              "rightValue": "Apa syarat klaim asuransi kesehatan?",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "66e354d5-3340-4a74-97b5-3458b7b1e930",
+              "leftValue": "= {{ $json.message.text }}",
+              "rightValue": "Bagaimana prosedur permintaan alat kerja baru?",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -544,
+        32
+      ],
+      "id": "30280551-cdf3-4550-9b74-f4387858c452",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "=Pertanyaan yang anda kirimkan tidak sesuai, harap menggunakan pertanyaan dibawah ini:\n1. Bagaimana prosedur reimbursement?\n2. Prosedur pengajuan cuti tahunan\n3. Bagaimana aturan lembur di perusahaan?\n4. Apa syarat klaim asuransi kesehatan\n5. Bagaimana prosedur permintaan alat kerja baru?\n",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -336,
+        128
+      ],
+      "id": "f0ad9014-8183-403f-877d-163db6252655",
+      "name": "Send a text message",
+      "webhookId": "6d8e6fc0-43ea-4522-bd21-d72fe4b9987c",
+      "credentials": {
+        "telegramApi": {
+          "id": "zfJ0sYfHci4DVY6D",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Anda adalah SOP AI Agent.\n\nAturan keras:\n- Anda wajib menggunakan TOOL \"Data Pertanyaan\" sebelum menjawaab\n- Jawaban harus diambil dari hasil tool\n- dilarang menggunakan pengetahuan umum\n- jika data tidak ditemukan, jawab \"maaf informasi tersebut tidak tersedia di SOP\"\n\nPertanyaan pengguna:\n{{ $('Telegram Trigger').item.json.message.text }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -48,
+        16
+      ],
+      "id": "fb59f1f6-f2f8-40b1-986d-f8b92c00f3f6",
+      "name": "AI Agent",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        320,
+        16
+      ],
+      "id": "1e7e9a52-611c-411a-88c4-bea38a79bb43",
+      "name": "Send a text message1",
+      "webhookId": "6d8e6fc0-43ea-4522-bd21-d72fe4b9987c",
+      "credentials": {
+        "telegramApi": {
+          "id": "zfJ0sYfHci4DVY6D",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1C_Octj7k2QBcctU-fy0JlfIJSBiJv_23LEGLo5a4Kk4",
+          "mode": "list",
+          "cachedResultName": "Data Pertanyaan untuk Karyawan",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1C_Octj7k2QBcctU-fy0JlfIJSBiJv_23LEGLo5a4Kk4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1C_Octj7k2QBcctU-fy0JlfIJSBiJv_23LEGLo5a4Kk4/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        96,
+        224
+      ],
+      "id": "3f5cdde5-fb5c-4fef-b842-ab232a5b5346",
+      "name": "Data Pertanyaan",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Qxprey4JdXedhrKC",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -192,
+        224
+      ],
+      "id": "97f76f91-53c6-4a7f-a989-0c3edad1a5c9",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "EddL7V6NISZJDbtp",
+          "name": "Groq account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Pertanyaan": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "1ea9c17a-d998-45f6-8ce8-4cd7c526a0f4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bb983733e1cff6aaf4a40589532dc5ce92703ea6f4b8d691fba2decba1a6fef6"
+  },
+  "id": "TTSbcvTg9Y1l89lZ",
+  "tags": []
+}
