@@ -1,0 +1,296 @@
+{
+  "name": "Tugas 1 AI SDM",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "933e6879-81ce-4557-be11-b2626f822cbd",
+              "name": "First Name",
+              "value": "={{ $json['First Name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "7a0c5b7c-9749-4cc3-92cc-abf89d7924a4",
+              "name": "Last Name",
+              "value": "={{ $json['Last Name'] }}",
+              "type": "string"
+            },
+            {
+              "id": "9da2ea55-f418-4be9-86b2-9e562c3c3870",
+              "name": "Email",
+              "value": "={{ $json.Email }}",
+              "type": "string"
+            },
+            {
+              "id": "4847ee0e-e21c-43c2-882d-9add65922ede",
+              "name": "Start date",
+              "value": "={{ $json['Start Date'] }}",
+              "type": "string"
+            },
+            {
+              "id": "0364c532-bfd9-43ca-8add-4b692f355ade",
+              "name": "Position",
+              "value": "={{ $json.Position }}",
+              "type": "string"
+            },
+            {
+              "id": "3b89372b-e497-48c5-9c72-2d7d86088b3b",
+              "name": "Full Name",
+              "value": "={{ $json['Ful Name'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -80,
+        0
+      ],
+      "id": "1e1b018d-2458-499e-8b02-c5c8496709aa",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "listId": "6a265d413f2f3e6a0afd691d",
+        "name": "Onboarding Karyawan",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.trello",
+      "typeVersion": 1,
+      "position": [
+        128,
+        0
+      ],
+      "id": "f0f9c3a0-8bf0-48f3-a0eb-ce454579ed7c",
+      "name": "Create a card",
+      "alwaysOutputData": true,
+      "credentials": {
+        "trelloApi": {
+          "id": "QUhZPnr1WvbYc7iz",
+          "name": "Trello account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "checklist",
+        "operation": "create",
+        "cardId": {
+          "__rl": true,
+          "value": "={{ $('Create a card').item.json.id }}",
+          "mode": "id"
+        },
+        "name": "={{ $json.Checklist }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.trello",
+      "typeVersion": 1,
+      "position": [
+        544,
+        0
+      ],
+      "id": "c5a520a9-d6c4-4632-b33d-4220912c1a37",
+      "name": "Create a checklist",
+      "credentials": {
+        "trelloApi": {
+          "id": "QUhZPnr1WvbYc7iz",
+          "name": "Trello account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Ambil data mentah\nconst items = $('ceklist').all();\nconst dataKaryawan = $('triger').first().json;\n\n// 2. Ambil teks dari kolom 'Checklist'\n// Di sini saya ganti jadi i.json['Checklist'] supaya sesuai gambar Sheets kamu\nconst listTugas = items.map(i => i.json['Checklist'] || 'Tugas kosong');\n\n// 3. Rapikan format tanggal (Start Date)\nlet tanggalRapi = dataKaryawan['Start Date'];\nif (typeof tanggalRapi === 'number') {\n    tanggalRapi = new Date((tanggalRapi - 25569) * 86400 * 1000).toLocaleDateString('id-ID');\n}\n\n// 4. Kirim hasil akhir\nreturn [\n  {\n    json: {\n      checklist: listTugas,\n      sheet: {\n        ...dataKaryawan,\n        'Start Date': tanggalRapi \n      }\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        752,
+        0
+      ],
+      "id": "2ea2fa67-31bd-4c18-a9c3-5b29ad4f64c7",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.sheet.Email }}",
+        "subject": "=Selamat Datang di Perusahaan,{{ $json.sheet['First Name'] }}{{ $json.sheet['Last Name'] }}",
+        "message": "=Hi  {{ $('triger').item.json['First Name'] }}{{ $('triger').item.json['Last Name'] }}\n\nSelamat datang di Perusahaan! Kami sangat senang Anda bergabung sebagai {{ $('triger').item.json.Position }} mulai {{ $json.sheet['Start Date'] }}\n\nBerikut daftar tugas onboarding Anda:\n<ul>\n{{ $json.checklist.map(item => `<li>${item}</li>`).join('') }}\n</ul>\n\nJika ada pertanyaan, reply email ini.\n\nSalam,\nTim HR",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        0
+      ],
+      "id": "9b1a6779-de73-4bce-aa7f-d524b12ad009",
+      "name": "Send a message",
+      "webhookId": "00b7a35f-1bb0-4c11-89c0-917297608693",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ngSDcQezsafVXqQJ",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1yA0YIhyhNLtOdBRpu8YOuDaSmtyaihF0JDGBpogJmNg/edit?usp=sharing",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 414361649,
+          "mode": "list",
+          "cachedResultName": "Form responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1yA0YIhyhNLtOdBRpu8YOuDaSmtyaihF0JDGBpogJmNg/edit#gid=414361649"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        0
+      ],
+      "id": "4c6d7c02-580d-4e4c-b568-3cb223374264",
+      "name": "triger",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "35bBWbqQLrg4Asmx",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1yA0YIhyhNLtOdBRpu8YOuDaSmtyaihF0JDGBpogJmNg",
+          "mode": "list",
+          "cachedResultName": "Onboarding (Responses)",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1yA0YIhyhNLtOdBRpu8YOuDaSmtyaihF0JDGBpogJmNg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1149906507,
+          "mode": "list",
+          "cachedResultName": "Checklist",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1yA0YIhyhNLtOdBRpu8YOuDaSmtyaihF0JDGBpogJmNg/edit#gid=1149906507"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        336,
+        0
+      ],
+      "id": "e14b6b1b-1f33-41f3-8c86-ffbc7d6cc029",
+      "name": "ceklist",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Qxprey4JdXedhrKC",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Create a card",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a card": {
+      "main": [
+        [
+          {
+            "node": "ceklist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a checklist": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "triger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ceklist": {
+      "main": [
+        [
+          {
+            "node": "Create a checklist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "a43bedf7-31c0-4334-9f60-81143fdea7ea",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "bb983733e1cff6aaf4a40589532dc5ce92703ea6f4b8d691fba2decba1a6fef6"
+  },
+  "id": "LHGz4BnfybK7NSMb",
+  "tags": []
+}
